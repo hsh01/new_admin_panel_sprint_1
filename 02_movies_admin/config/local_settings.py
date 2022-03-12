@@ -1,3 +1,5 @@
+"""Localhost config."""
+
 import os
 from .components.base import (
     INSTALLED_APPS,

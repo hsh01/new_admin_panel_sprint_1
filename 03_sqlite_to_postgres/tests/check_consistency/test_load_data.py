@@ -12,11 +12,11 @@ def test_tables_count_equals():
         sqlite_cur = sqlite_conn.cursor()
         cur = pg_conn.cursor()
         for cls in classes:
-            query = 'SELECT count(*) FROM {table}'.format(table=cls.MODEL)
+            query = 'SELECT count(*) FROM {table}'.format(table=cls.model)
             sqlite_cur.execute(query)
             sqlite_record = sqlite_cur.fetchone()
 
-            query = 'SELECT count(*) FROM {table}'.format(table=cls.MODEL)
+            query = 'SELECT count(*) FROM {table}'.format(table=cls.model)
             cur.execute(query)
             pg_record = cur.fetchone()
             assert sqlite_record == pg_record
@@ -35,7 +35,7 @@ def test_tables_rows_equals():
                 fields.remove('created')
             if 'modified' in fields:
                 fields.remove('modified')
-            query = 'SELECT {fields} FROM {table} ORDER BY id'.format(fields=get_fields(fields), table=cls.MODEL)
+            query = 'SELECT {fields} FROM {table} ORDER BY id'.format(fields=get_fields(fields), table=cls.model)
 
             sqlite_cur.execute(query)
             cur.execute(query)

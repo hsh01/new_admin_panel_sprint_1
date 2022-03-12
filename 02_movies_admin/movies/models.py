@@ -100,4 +100,4 @@ class PersonFilmWork(UUIDMixin, CreatedAtMixin):
     role = models.CharField(_('role'), choices=RoleType.choices, max_length=255, null=True)
 
     class Meta:
-        db_table = "content\".\"person_film_work"
+        db_table = 'content\".\"person_film_work'
