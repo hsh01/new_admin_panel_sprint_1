@@ -35,6 +35,9 @@ class Genre(UUIDMixin, TimeStampedMixin):
         db_table = "content\".\"genre"
         verbose_name = _('genre')
         verbose_name_plural = _('genres')
+        indexes = [
+            models.Index(fields=['name'], name='genre_name_idx'),
+        ]
 
     def __str__(self):
         return self.name
@@ -61,7 +64,6 @@ class Filmwork(UUIDMixin, TimeStampedMixin):
     title = models.CharField(_('title'), max_length=255)
     description = models.TextField(_('description'), blank=True, null=True)
     creation_date = models.DateField(_('creation_date'))
-    # file_path = models.FileField(_('file'), blank=True, null=True, upload_to='movies/')
     rating = models.FloatField(_('rating'), blank=True, validators=[MinValueValidator(0), MaxValueValidator(100)])
     type = models.CharField(_('type'), choices=FilmworkType.choices, max_length=7)
     persons = models.ManyToManyField(Person, through='PersonFilmWork', verbose_name=_('persons'))
@@ -71,6 +73,9 @@ class Filmwork(UUIDMixin, TimeStampedMixin):
         db_table = "content\".\"film_work"
         verbose_name = _('filmwork')
         verbose_name_plural = _('filmworks')
+        indexes = [
+            models.Index(fields=['creation_date'], name='film_work_creation_date_idx'),
+        ]
 
     def __str__(self):
         return self.title
@@ -82,6 +87,9 @@ class GenreFilmwork(UUIDMixin, CreatedAtMixin):
 
     class Meta:
         db_table = "content\".\"genre_film_work"
+        constraints = [
+            models.UniqueConstraint(fields=['film_work_id', 'genre_id'], name='genre_film_work_person_idx'),
+        ]
 
     def __str__(self):
         return str(self.genre.id)
@@ -101,3 +109,7 @@ class PersonFilmWork(UUIDMixin, CreatedAtMixin):
 
     class Meta:
         db_table = 'content\".\"person_film_work'
+        constraints = [
+            models.UniqueConstraint(fields=['film_work_id', 'person_id'], name='film_work_person_idx'),
+            models.UniqueConstraint(fields=['film_work_id', 'person_id', 'role'], name='film_work_person_rol_idx'),
+        ]
