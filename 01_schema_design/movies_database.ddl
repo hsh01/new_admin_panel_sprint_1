@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS content.person_film_work (
 
 CREATE INDEX IF NOT EXISTS film_work_person_idx ON content.person_film_work (film_work_id, person_id);
 
+CREATE UNIQUE INDEX IF NOT EXISTS film_work_person_rol_idx ON content.person_film_work (film_work_id, person_id, role);
+
 CREATE TABLE IF NOT EXISTS content.genre (
     id uuid PRIMARY KEY,
     name varchar(255) NOT NULL,
