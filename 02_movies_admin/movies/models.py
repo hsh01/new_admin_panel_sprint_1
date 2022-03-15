@@ -5,6 +5,13 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
+class UUIDMixin(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        abstract = True
+
+
 class CreatedAtMixin(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name=_('created'))
 
@@ -19,17 +26,9 @@ class TimeStampedMixin(CreatedAtMixin):
         abstract = True
 
 
-class UUIDMixin(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-    class Meta:
-        abstract = True
-
-
 class Genre(UUIDMixin, TimeStampedMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(_('name'), max_length=255)
-    description = models.TextField(_('description'), blank=True)
+    description = models.TextField(_('description'), blank=True, null=True)
 
     class Meta:
         db_table = "content\".\"genre"
@@ -60,11 +59,11 @@ class Filmwork(UUIDMixin, TimeStampedMixin):
         MOVIE = 'movie', _('movie')
         TV_SHOW = 'tv_show', _('tv_show')
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(_('title'), max_length=255)
     description = models.TextField(_('description'), blank=True, null=True)
-    creation_date = models.DateField(_('creation_date'))
-    rating = models.FloatField(_('rating'), blank=True, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    creation_date = models.DateField(_('creation_date'), null=True, blank=True)
+    rating = models.FloatField(_('rating'), blank=True, null=True,
+                               validators=[MinValueValidator(0), MaxValueValidator(100)])
     type = models.CharField(_('type'), choices=FilmworkType.choices, max_length=7)
     persons = models.ManyToManyField(Person, through='PersonFilmWork', verbose_name=_('persons'))
     genres = models.ManyToManyField(Genre, through='GenreFilmwork', verbose_name=_('genre'))
@@ -96,7 +95,6 @@ class GenreFilmwork(UUIDMixin, CreatedAtMixin):
 
 
 class PersonFilmWork(UUIDMixin, CreatedAtMixin):
-
     class RoleType(models.TextChoices):
         ACTOR = 'actor', _('actor')
         WRITER = 'writer', _('writer')
@@ -109,7 +107,10 @@ class PersonFilmWork(UUIDMixin, CreatedAtMixin):
 
     class Meta:
         db_table = 'content\".\"person_film_work'
+
+        indexes = [
+            models.Index(fields=['film_work_id', 'person_id'], name='film_work_person_idx'),
+        ]
         constraints = [
-            models.UniqueConstraint(fields=['film_work_id', 'person_id'], name='film_work_person_idx'),
-            models.UniqueConstraint(fields=['film_work_id', 'person_id', 'role'], name='film_work_person_rol_idx'),
+            models.UniqueConstraint(fields=['film_work_id', 'person_id', 'role'], name='film_work_person_role_idx'),
         ]

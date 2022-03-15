@@ -24,7 +24,7 @@ def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection):
     classes = (Movie, Genre, Person, GenreFilmWork, PersonFilmWork)
     for cls in classes:
         with pg_conn.cursor() as cursor:
-            cursor.execute("TRUNCATE content.{}".format(cls.model))
+            cursor.execute("TRUNCATE content.{} CASCADE".format(cls.model))
         objs = sqlite_loader.load_objs(cls, {'created': 'created_at', 'modified': 'updated_at'}, batch_size)
         for data in objs:
             postgres_saver.save_all_data(cls, data)
